@@ -9,12 +9,20 @@ Public safety spending is often discussed in aggregate. cop-flagration helps peo
 ## Tech stack
 
 - Remix with Cloudflare Pages adapter (`@remix-run/cloudflare-pages`)
-- Cloudflare D1 (SQLite)
-- Tailwind CSS
-- Leaflet (optional map pin)
+- Cloudflare D1 (SQLite) for cities, comparisons, and reports
+- Tailwind CSS v4
+- Leaflet (optional map pin, loaded lazily)
 - nanoid (shareable short slugs)
+- Vitest (tests)
 
 ## Local development
+
+### Prerequisites
+
+- Node.js 20+
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/) (`npm install -g wrangler` or use the local version via `npx wrangler`)
+
+### Setup
 
 1. Clone and install:
    ```bash
@@ -42,39 +50,95 @@ Public safety spending is often discussed in aggregate. cop-flagration helps peo
      bindings) instead of `wrangler.toml`, or
    - If you do need it in `wrangler.toml` locally, run `git update-index --skip-worktree wrangler.toml`
      first so git ignores further local edits to the file.
-5. Initialize schema and seed data:
+5. Initialize local schema and seed data:
    ```bash
    npm run db:init
    npm run db:seed
    ```
+   This creates a local SQLite database (`.wrangler/state/v3/d1/`) used by the dev server. It seeds
+   cities, national comparison values, and city-specific comparison overrides.
 6. Start dev server:
    ```bash
    npm run dev
    ```
 
+### Testing and type checking
+
+```bash
+npm test            # run Vitest unit tests
+npm run typecheck   # run TypeScript type checking
+```
+
 ## Deploying to Cloudflare Pages
 
-1. Build app:
-   ```bash
-   npm run build
-   ```
-2. Deploy:
-   ```bash
-   npm run deploy
-   ```
+### 1. Create a Cloudflare Pages project
 
-Configure Cloudflare Pages with this repository and ensure the D1 binding name is `DB`.
+Connect the repository to Cloudflare Pages via the dashboard:
+
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
+2. Select the `cop-flagration` repository and configure the build:
+   - **Build command:** `npm run build`
+   - **Build output directory:** `./build/client`
+3. Save and deploy (the first deploy may fail until the D1 binding is configured — that's expected).
+
+Alternatively, create the project from the CLI:
+```bash
+wrangler pages project create cop-flagration
+```
+
+### 2. Attach the D1 database
+
+In the Cloudflare Dashboard, go to your Pages project → **Settings** → **Bindings** → **Add** → **D1 database**:
+
+- **Variable name:** `DB`
+- **D1 database:** select your `cop-flagration` database
+
+This binding name must be exactly `DB` — it matches what the app reads from `context.cloudflare.env.DB`.
+
+### 3. Initialize the remote database
+
+Run the schema and seed files against the remote (production) D1 database once:
+
+```bash
+wrangler d1 execute cop-flagration --remote --file=db/schema.sql
+wrangler d1 execute cop-flagration --remote --file=db/seed-cities.sql
+wrangler d1 execute cop-flagration --remote --file=db/seed-comparisons.sql
+wrangler d1 execute cop-flagration --remote --file=db/seed-city-overrides.sql
+```
+
+### 4. Deploy
+
+```bash
+npm run build
+npm run deploy
+```
+
+Subsequent deploys from a connected repository branch are also triggered automatically on push.
 
 ## Updating city cost data
 
-1. Update values in:
-   - `db/seed-cities.sql`
-   - `db/seed-city-overrides.sql` (for city-specific comparison overrides)
+The database is seeded from three SQL files:
+
+| File | Contents |
+|---|---|
+| `db/seed-cities.sql` | Per-city hourly cost rates (officers, vehicles, helicopters, etc.) |
+| `db/seed-comparisons.sql` | National comparison values (meals, housing, therapy, etc.) |
+| `db/seed-city-overrides.sql` | City-specific overrides for comparison costs |
+
+To update data:
+
+1. Edit the relevant seed file(s).
 2. Re-seed locally:
    ```bash
    npm run db:seed
    ```
-3. Submit a PR with source links and years for transparency.
+3. After merging, re-seed the remote database:
+   ```bash
+   wrangler d1 execute cop-flagration --remote --file=db/seed-cities.sql
+   wrangler d1 execute cop-flagration --remote --file=db/seed-comparisons.sql
+   wrangler d1 execute cop-flagration --remote --file=db/seed-city-overrides.sql
+   ```
+4. Submit a PR with source links and years for transparency.
 
 ## Data sources and methodology
 
