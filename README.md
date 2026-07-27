@@ -1,5 +1,7 @@
 # Cop Takeover 🔥
 
+**Live:** https://cop-takeover.pages.dev/
+
 Cop Takeover (GitHub repo: `cop-flagration`; npm package/Cloudflare Pages project: `cop-takeover`) is a mobile-first civic tool for documenting police deployments, estimating what they cost the community, and translating that same amount into concrete alternatives (housing, meals, therapy, and more).
 
 ## Why this exists
