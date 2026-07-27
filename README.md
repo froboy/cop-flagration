@@ -38,18 +38,24 @@ Public safety spending is often discussed in aggregate. cop-flagration helps peo
    ```bash
    wrangler d1 create cop-flagration
    ```
-4. Copy the returned database ID into `wrangler.toml` (`database_id = "..."`).
+4. Copy the local config template and fill in the returned database ID:
+   ```bash
+   cp wrangler.local.toml.example wrangler.local.toml
+   ```
+   Then edit `wrangler.local.toml` and replace `database_id` with your real ID.
 
-   **`wrangler.toml` is committed to this public repo and is *not* gitignored.** Don't commit your
-   real `database_id` over the placeholder value. A D1 database ID isn't itself a credential (it
-   can't be used to access your data without a valid Cloudflare API token/account access), but
-   committing it still exposes your infrastructure layout unnecessarily. Instead:
-   - Keep `database_id` set to the placeholder in git, and use `wrangler d1 execute --local`/`--remote`
-     flags with your real ID only in your local shell, or
-   - Set the D1 binding in the Cloudflare Pages dashboard (Settings → Functions → D1 database
-     bindings) instead of `wrangler.toml`, or
-   - If you do need it in `wrangler.toml` locally, run `git update-index --skip-worktree wrangler.toml`
-     first so git ignores further local edits to the file.
+   **`wrangler.local.toml` is gitignored — it never gets committed.** `wrangler.toml` itself (which
+   *is* committed) intentionally ships with no `[[d1_databases]]` block at all. This isn't just a
+   "don't leak an ID" precaution: Cloudflare Pages' git-connected auto-deploy reads the *committed*
+   `wrangler.toml`, and if it declares a `[[d1_databases]]` block with an invalid or placeholder
+   `database_id`, the deploy hard-fails (`Invalid database UUID`), regardless of any binding
+   configured in the dashboard. So for the deployed project, the D1 binding is configured
+   exclusively via the Cloudflare Pages dashboard (see [Attach the D1 database](#2-attach-the-d1-database)
+   below). `wrangler.local.toml` exists purely as a local-dev convenience for the Wrangler CLI and
+   Vite dev server (`npm run dev`, `db:init`/`db:seed`), which can't see dashboard bindings and need
+   their own config — both are already wired up to read it via `--config`/`configPath`, so once the
+   file exists you don't need to do anything else. (Local `npm run deploy` doesn't need it at all:
+   `wrangler pages deploy` only uploads code/assets — bindings live on the Pages project itself.)
 5. Initialize local schema and seed data:
    ```bash
    npm run db:init
@@ -92,6 +98,10 @@ In the Cloudflare Dashboard, go to your Pages project → **Settings** → **Bin
 
 - **Variable name:** `DB`
 - **D1 database:** select your `cop-flagration` database
+
+Cloudflare Pages scopes bindings per environment — add this binding under **both Production and
+Preview**, or Preview deploys (e.g. from PR branches) will fail the same way Production did before
+this was configured.
 
 This binding name must be exactly `DB` — it matches what the app reads from `context.cloudflare.env.DB`.
 
