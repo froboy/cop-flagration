@@ -1,0 +1,8 @@
+.DS_Store
+.env
+node_modules/
+/build/
+/.cache/
+/.wrangler/
+/.dev.vars
+/public/build/
