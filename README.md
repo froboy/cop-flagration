@@ -31,6 +31,17 @@ Public safety spending is often discussed in aggregate. cop-flagration helps peo
    wrangler d1 create cop-flagration
    ```
 4. Copy the returned database ID into `wrangler.toml` (`database_id = "..."`).
+
+   **`wrangler.toml` is committed to this public repo and is *not* gitignored.** Don't commit your
+   real `database_id` over the placeholder value. A D1 database ID isn't itself a credential (it
+   can't be used to access your data without a valid Cloudflare API token/account access), but
+   committing it still exposes your infrastructure layout unnecessarily. Instead:
+   - Keep `database_id` set to the placeholder in git, and use `wrangler d1 execute --local`/`--remote`
+     flags with your real ID only in your local shell, or
+   - Set the D1 binding in the Cloudflare Pages dashboard (Settings → Functions → D1 database
+     bindings) instead of `wrangler.toml`, or
+   - If you do need it in `wrangler.toml` locally, run `git update-index --skip-worktree wrangler.toml`
+     first so git ignores further local edits to the file.
 5. Initialize schema and seed data:
    ```bash
    npm run db:init
