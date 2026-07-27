@@ -1,3 +1,5 @@
+import type { ComparisonInput } from "~/lib/cost-calculator";
+
 export type City = {
   id: number;
   name: string;
@@ -61,7 +63,7 @@ export async function getCityById(db: D1Database, id: number) {
 export async function getComparisons(db: D1Database) {
   const result = await db
     .prepare("SELECT * FROM comparisons WHERE active = 1 ORDER BY id ASC")
-    .all();
+    .all<ComparisonInput>();
   return result.results;
 }
 
@@ -87,7 +89,7 @@ export async function getComparisonsForCity(db: D1Database, cityId: number) {
       ORDER BY c.id ASC`,
     )
     .bind(cityId)
-    .all();
+    .all<ComparisonInput>();
   return result.results;
 }
 
@@ -111,7 +113,6 @@ export async function saveReport(
     motorcycle_count: number;
     estimated_total_cost: number;
     notes: string | null;
-    share_token: string;
   },
 ) {
   await db
@@ -119,8 +120,8 @@ export async function saveReport(
       `INSERT INTO reports (
         id, city_id, custom_city, report_date, start_time, end_time, duration_minutes,
         location_description, latitude, longitude, officer_count, commander_count,
-        vehicle_count, helicopter_count, motorcycle_count, estimated_total_cost, notes, share_token
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        vehicle_count, helicopter_count, motorcycle_count, estimated_total_cost, notes
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       report.id,
@@ -140,7 +141,6 @@ export async function saveReport(
       report.motorcycle_count,
       report.estimated_total_cost,
       report.notes,
-      report.share_token,
     )
     .run();
 }

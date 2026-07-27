@@ -1,6 +1,8 @@
+import "leaflet/dist/leaflet.css";
 import { json, redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { Form, useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { CircleMarker, Map as LeafletMap, LeafletMouseEvent } from "leaflet";
 import { CitySelector } from "~/components/CitySelector";
 import { CostEstimator } from "~/components/CostEstimator";
 import { UnitCounter } from "~/components/UnitCounter";
@@ -14,7 +16,6 @@ import {
   saveReport,
 } from "~/lib/db";
 import { generateSlug } from "~/lib/slug";
-import { nanoid } from "nanoid";
 
 type AppContext = { cloudflare: { env: { DB: D1Database } } };
 
@@ -25,6 +26,25 @@ const NATIONAL_AVERAGE_RATES = {
   helicopter: 2000,
   motorcycle: 42,
 };
+
+const MAX_CUSTOM_CITY_LENGTH = 100;
+const MAX_LOCATION_LENGTH = 200;
+const MAX_NOTES_LENGTH = 2000;
+const MAX_SLUG_ATTEMPTS = 3;
+
+function parseCount(value: FormDataEntryValue | null) {
+  const num = Number(value ?? 0);
+  return Number.isFinite(num) ? Math.max(0, Math.floor(num)) : 0;
+}
+
+function parseOptionalCoordinate(raw: string, min: number, max: number) {
+  if (!raw) return { value: null as number | null, valid: true };
+  const num = Number(raw);
+  if (!Number.isFinite(num) || num < min || num > max) {
+    return { value: null as number | null, valid: false };
+  }
+  return { value: num, valid: true };
+}
 
 function calculateDurationMinutes(startTime: string, endTime: string) {
   if (!startTime || !endTime) return 0;
@@ -50,6 +70,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
   const db = (context as AppContext).cloudflare.env.DB;
   const formData = await request.formData();
 
+  const honeypot = String(formData.get("company") || "").trim();
+  if (honeypot) {
+    return json({ error: "Invalid submission." }, { status: 400 });
+  }
+
   const cityIdValue = String(formData.get("cityId") || "");
   const customCity = String(formData.get("customCity") || "").trim();
   const reportDate = String(formData.get("reportDate") || "");
@@ -58,16 +83,16 @@ export async function action({ request, context }: ActionFunctionArgs) {
   const locationDescription = String(formData.get("locationDescription") || "").trim();
   const notes = String(formData.get("notes") || "").trim();
 
-  const officerCount = Number(formData.get("officerCount") || 0);
-  const commanderCount = Number(formData.get("commanderCount") || 0);
-  const vehicleCount = Number(formData.get("vehicleCount") || 0);
-  const motorcycleCount = Number(formData.get("motorcycleCount") || 0);
-  const helicopterCount = Number(formData.get("helicopterCount") || 0);
+  const officerCount = parseCount(formData.get("officerCount"));
+  const commanderCount = parseCount(formData.get("commanderCount"));
+  const vehicleCount = parseCount(formData.get("vehicleCount"));
+  const motorcycleCount = parseCount(formData.get("motorcycleCount"));
+  const helicopterCount = parseCount(formData.get("helicopterCount"));
 
   const latitudeRaw = String(formData.get("latitude") || "").trim();
   const longitudeRaw = String(formData.get("longitude") || "").trim();
-  const latitude = latitudeRaw ? Number(latitudeRaw) : null;
-  const longitude = longitudeRaw ? Number(longitudeRaw) : null;
+  const latitudeResult = parseOptionalCoordinate(latitudeRaw, -90, 90);
+  const longitudeResult = parseOptionalCoordinate(longitudeRaw, -180, 180);
 
   const durationMinutes = calculateDurationMinutes(startTime, endTime);
 
@@ -83,8 +108,29 @@ export async function action({ request, context }: ActionFunctionArgs) {
     return json({ error: "Please complete the required fields and ensure duration is greater than zero." }, { status: 400 });
   }
 
+  if (
+    customCity.length > MAX_CUSTOM_CITY_LENGTH ||
+    locationDescription.length > MAX_LOCATION_LENGTH ||
+    notes.length > MAX_NOTES_LENGTH
+  ) {
+    return json({ error: "One of your entries is too long." }, { status: 400 });
+  }
+
+  if (!latitudeResult.valid || !longitudeResult.valid) {
+    return json({ error: "Latitude/longitude must be valid coordinates." }, { status: 400 });
+  }
+  const latitude = latitudeResult.value;
+  const longitude = longitudeResult.value;
+
+  if (cityIdValue !== "other" && (!Number.isInteger(Number(cityIdValue)) || Number(cityIdValue) <= 0)) {
+    return json({ error: "Please select a valid city." }, { status: 400 });
+  }
+
   const cityId = cityIdValue === "other" ? null : Number(cityIdValue);
   const city = cityId ? await getCityById(db, cityId) : null;
+  if (cityId && !city) {
+    return json({ error: "Please select a valid city." }, { status: 400 });
+  }
   const cityName = city?.name ?? customCity;
 
   const rates = city
@@ -112,32 +158,43 @@ export async function action({ request, context }: ActionFunctionArgs) {
   });
 
   const comparisons = cityId ? await getComparisonsForCity(db, cityId) : await getComparisons(db);
-  const snapshots = buildComparisonSnapshots(totalCost, comparisons as any[]);
+  const snapshots = buildComparisonSnapshots(totalCost, comparisons);
 
-  const slug = generateSlug(cityName, reportDate, locationDescription);
+  let slug = generateSlug(cityName, reportDate, locationDescription);
+  let attempts = 0;
+  while (true) {
+    try {
+      await saveReport(db, {
+        id: slug,
+        city_id: cityId,
+        custom_city: cityId ? null : customCity,
+        report_date: reportDate,
+        start_time: startTime,
+        end_time: endTime,
+        duration_minutes: durationMinutes,
+        location_description: locationDescription,
+        latitude,
+        longitude,
+        officer_count: officerCount,
+        commander_count: commanderCount,
+        vehicle_count: vehicleCount,
+        helicopter_count: helicopterCount,
+        motorcycle_count: motorcycleCount,
+        estimated_total_cost: totalCost,
+        notes: notes || null,
+      });
+      break;
+    } catch (error) {
+      attempts += 1;
+      const message = error instanceof Error ? error.message : String(error);
+      if (attempts >= MAX_SLUG_ATTEMPTS || !message.includes("UNIQUE constraint failed")) {
+        throw error;
+      }
+      slug = generateSlug(cityName, reportDate, locationDescription);
+    }
+  }
 
-  await saveReport(db, {
-    id: slug,
-    city_id: cityId,
-    custom_city: cityId ? null : customCity,
-    report_date: reportDate,
-    start_time: startTime,
-    end_time: endTime,
-    duration_minutes: durationMinutes,
-    location_description: locationDescription,
-    latitude,
-    longitude,
-    officer_count: officerCount,
-    commander_count: commanderCount,
-    vehicle_count: vehicleCount,
-    helicopter_count: helicopterCount,
-    motorcycle_count: motorcycleCount,
-    estimated_total_cost: totalCost,
-    notes: notes || null,
-    share_token: nanoid(12),
-  });
-
-  await saveComparisonSnapshot(db, slug, snapshots as any[]);
+  await saveComparisonSnapshot(db, slug, snapshots);
 
   return redirect(`/r/${slug}`);
 }
@@ -167,7 +224,7 @@ export default function NewReportPage() {
   const [mapError, setMapError] = useState<string | null>(null);
 
   const mapRef = useRef<HTMLDivElement | null>(null);
-  const markerRef = useRef<any>(null);
+  const markerRef = useRef<CircleMarker | null>(null);
 
   const selectedCity = useMemo(() => cities.find((city) => String(city.id) === cityId), [cities, cityId]);
 
@@ -189,20 +246,20 @@ export default function NewReportPage() {
     }
 
     let canceled = false;
-    let map: any;
+    let map: LeafletMap | undefined;
 
     (async () => {
       try {
-        await import("leaflet/dist/leaflet.css");
         const L = await import("leaflet");
         if (canceled || !mapRef.current) return;
 
-        map = L.map(mapRef.current).setView([39.8283, -98.5795], 4);
+        const mapInstance = L.map(mapRef.current).setView([39.8283, -98.5795], 4);
+        map = mapInstance;
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           attribution: '&copy; OpenStreetMap contributors',
-        }).addTo(map);
+        }).addTo(mapInstance);
 
-        map.on("click", (event: any) => {
+        mapInstance.on("click", (event: LeafletMouseEvent) => {
           const { lat, lng } = event.latlng;
           setLatitude(lat.toFixed(6));
           setLongitude(lng.toFixed(6));
@@ -215,7 +272,7 @@ export default function NewReportPage() {
             weight: 2,
             fillColor: "#111827",
             fillOpacity: 0.65,
-          }).addTo(map);
+          }).addTo(mapInstance);
         });
       } catch {
         setMapError("Unable to load map in this browser. You can still enter coordinates manually.");
@@ -240,6 +297,13 @@ export default function NewReportPage() {
       ) : null}
 
       <Form method="post" className="mt-6 space-y-5">
+        <div aria-hidden="true" className="hidden">
+          <label>
+            Company
+            <input type="text" name="company" tabIndex={-1} autoComplete="off" />
+          </label>
+        </div>
+
         <CitySelector
           cities={cities}
           selectedCityId={cityId}

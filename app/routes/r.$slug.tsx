@@ -57,7 +57,7 @@ export default function ReportSharePage() {
       <section className="mt-5">
         <h2 className="text-2xl font-black">What else could this have funded?</h2>
         <div className="mt-3">
-          <ComparisonCards snapshots={comparisons as any[]} />
+          <ComparisonCards snapshots={comparisons} />
         </div>
       </section>
 

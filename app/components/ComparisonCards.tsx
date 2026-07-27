@@ -6,7 +6,7 @@ type Snapshot = {
   icon: string | null;
   count_equivalent: number;
   plural_label?: string | null;
-  description?: string;
+  description?: string | null;
   source_name: string | null;
   source_url: string | null;
   was_city_specific: number;

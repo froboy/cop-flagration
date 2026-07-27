@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS comparisons (
   label TEXT NOT NULL,
   description TEXT NOT NULL,
   icon TEXT,
-  cost_per_unit REAL NOT NULL,
+  cost_per_unit REAL NOT NULL CHECK (cost_per_unit > 0),
   unit_label TEXT NOT NULL,
   plural_label TEXT,
   source_name TEXT,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS comparisons (
 CREATE TABLE IF NOT EXISTS city_comparison_costs (
   city_id INTEGER NOT NULL REFERENCES cities(id),
   comparison_id INTEGER NOT NULL REFERENCES comparisons(id),
-  cost_per_unit REAL NOT NULL,
+  cost_per_unit REAL NOT NULL CHECK (cost_per_unit > 0),
   source_name TEXT,
   source_url TEXT,
   PRIMARY KEY (city_id, comparison_id)
@@ -53,8 +53,7 @@ CREATE TABLE IF NOT EXISTS reports (
   motorcycle_count INTEGER DEFAULT 0,
   estimated_total_cost REAL,
   notes TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  share_token TEXT UNIQUE
+  created_at TEXT DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS report_comparisons_snapshot (
