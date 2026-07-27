@@ -34,10 +34,10 @@ export function CostEstimator({ durationMinutes, rates, counts }: CostEstimatorP
   });
 
   return (
-    <section className="rounded-2xl border-2 border-zinc-900 bg-zinc-900 p-5 text-white">
-      <p className="text-sm uppercase tracking-wide text-zinc-300">Live estimate</p>
+    <section className="rounded-2xl border-2 border-zinc-900 bg-zinc-900 p-5 text-white dark:border-zinc-700 dark:bg-zinc-950">
+      <p className="text-sm uppercase tracking-wide text-zinc-300 dark:text-zinc-400">Live estimate</p>
       <p className="mt-2 text-4xl font-black">{formatCurrency(total)}</p>
-      <p className="text-sm text-zinc-300">Estimated cost to the community</p>
+      <p className="text-sm text-zinc-300 dark:text-zinc-400">Estimated cost to the community</p>
     </section>
   );
 }

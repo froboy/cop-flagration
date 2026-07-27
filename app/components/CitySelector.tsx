@@ -36,7 +36,7 @@ export function CitySelector({
           name="cityId"
           value={selectedCityId}
           onChange={(event) => onCityChange(event.target.value)}
-          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2"
+          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
           required
         >
           <option value="">Select a city</option>
@@ -57,11 +57,11 @@ export function CitySelector({
             name="customCity"
             value={customCity}
             onChange={(event) => onCustomCityChange(event.target.value)}
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2"
+            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
             placeholder="Enter your city"
             required
           />
-          <span className="block text-xs text-zinc-600">
+          <span className="block text-xs text-zinc-600 dark:text-zinc-400">
             National average costs will be used for unlisted cities.
           </span>
         </label>
