@@ -7,12 +7,14 @@ import {
   isRouteErrorResponse,
   useRouteError,
 } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/cloudflare";
+import type { LinksFunction, MetaFunction } from "@remix-run/cloudflare";
 import { useEffect, useState } from "react";
 
 import "./app.css";
 
 export const links: LinksFunction = () => [];
+
+export const meta: MetaFunction = () => [{ title: "Cop Takeover" }];
 
 type Theme = "light" | "dark";
 
@@ -60,7 +62,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="border-b border-zinc-200 bg-white transition-colors dark:border-zinc-800 dark:bg-zinc-900">
           <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
             <a href="/" className="text-lg font-black tracking-tight">
-              cop-flagration 🔥
+              Cop Takeover 🔥
             </a>
             <div className="flex items-center gap-4 text-sm font-medium">
               <a href="/about" className="text-zinc-700 hover:underline dark:text-zinc-200">

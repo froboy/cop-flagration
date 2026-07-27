@@ -289,7 +289,7 @@ export default function NewReportPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-3xl font-black">Document a cop-flagration</h1>
+      <h1 className="text-3xl font-black">Document a Cop Takeover</h1>
       <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300">Document who showed up, for how long, and what it likely cost.</p>
 
       {actionData?.error ? (
@@ -368,13 +368,21 @@ export default function NewReportPage() {
         <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Duration: {formatDuration(durationMinutes)}</p>
 
         <div className="space-y-3">
-          <UnitCounter name="officerCount" label="Officers" icon="👮" value={officerCount} onChange={setOfficerCount} />
+          <UnitCounter
+            name="officerCount"
+            label="Officers"
+            icon="👮"
+            value={officerCount}
+            onChange={setOfficerCount}
+            hint="Patrol officers — typically blue uniform shirts."
+          />
           <UnitCounter
             name="commanderCount"
             label="Commanders/Supervisors"
             icon="⭐"
             value={commanderCount}
             onChange={setCommanderCount}
+            hint="Sergeants, lieutenants, captains — typically white/light uniform shirts, distinct from patrol officers."
           />
           <UnitCounter
             name="vehicleCount"
@@ -382,6 +390,7 @@ export default function NewReportPage() {
             icon="🚔"
             value={vehicleCount}
             onChange={setVehicleCount}
+            hint="Count vehicles even if their officers are already counted above — this is the vehicle's own operating cost, not additional officer time."
           />
           <UnitCounter
             name="motorcycleCount"

@@ -1,7 +1,7 @@
 export default function AboutPage() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="text-3xl font-black">About cop-flagration</h1>
+      <h1 className="text-3xl font-black">About Cop Takeover</h1>
       <div className="mt-6 space-y-6 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
         <section>
           <h2 className="text-xl font-bold">How deployment costs are estimated</h2>
@@ -17,6 +17,16 @@ export default function AboutPage() {
           <p className="mt-2 text-zinc-700 dark:text-zinc-300">
             Officer, supervisor, vehicle, motorcycle, and aircraft estimated hourly costs. Estimates are
             directional and designed for transparency in civic discussions.
+          </p>
+          <p className="mt-2 text-zinc-700 dark:text-zinc-300">
+            Officers and commanders/supervisors are counted separately by rank — commanders and supervisors
+            (sergeants, lieutenants, captains) typically wear white or light uniform shirts, distinct from
+            patrol officers' blue shirts.
+          </p>
+          <p className="mt-2 text-zinc-700 dark:text-zinc-300">
+            Officer and vehicle counts aren't double-counting the same cost: officer cost reflects personnel
+            time, while vehicle cost reflects the vehicle's own operating cost (fuel, wear, etc.). Count a
+            vehicle even if its officers are already counted above.
           </p>
         </section>
 

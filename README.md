@@ -1,10 +1,10 @@
-# cop-flagration 🔥
+# Cop Takeover 🔥
 
-cop-flagration is a mobile-first civic tool for documenting police deployments, estimating what they cost the community, and translating that same amount into concrete alternatives (housing, meals, therapy, and more).
+Cop Takeover (repo/package name: `cop-flagration`) is a mobile-first civic tool for documenting police deployments, estimating what they cost the community, and translating that same amount into concrete alternatives (housing, meals, therapy, and more).
 
 ## Why this exists
 
-Public safety spending is often discussed in aggregate. cop-flagration helps people quickly estimate the cost of a specific deployment and compare that amount to other urgent community needs.
+Public safety spending is often discussed in aggregate. Cop Takeover helps people quickly estimate the cost of a specific deployment and compare that amount to other urgent community needs.
 
 ## Tech stack
 
