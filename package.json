@@ -1,0 +1,39 @@
+{
+  "name": "cop-flagration",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db:init": "wrangler d1 execute cop-flagration --local --file=db/schema.sql",
+    "db:seed": "npm run db:seed:cities && npm run db:seed:comparisons && npm run db:seed:overrides",
+    "db:seed:cities": "wrangler d1 execute cop-flagration --local --file=db/seed-cities.sql",
+    "db:seed:comparisons": "wrangler d1 execute cop-flagration --local --file=db/seed-comparisons.sql",
+    "db:seed:overrides": "wrangler d1 execute cop-flagration --local --file=db/seed-city-overrides.sql",
+    "dev": "remix vite:dev",
+    "build": "remix vite:build",
+    "deploy": "wrangler pages deploy",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@remix-run/cloudflare": "^2.17.1",
+    "@remix-run/cloudflare-pages": "^2.17.1",
+    "@remix-run/react": "^2.17.1",
+    "isbot": "^5.1.36",
+    "leaflet": "^1.9.4",
+    "nanoid": "^5.1.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^2.17.1",
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/leaflet": "^1.9.21",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5",
+    "vite-tsconfig-paths": "^5.1.4",
+    "wrangler": "^3.109.3"
+  }
+}
