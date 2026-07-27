@@ -1,6 +1,6 @@
 # Cop Takeover 🔥
 
-Cop Takeover (repo/package name: `cop-flagration`) is a mobile-first civic tool for documenting police deployments, estimating what they cost the community, and translating that same amount into concrete alternatives (housing, meals, therapy, and more).
+Cop Takeover (GitHub repo: `cop-flagration`; npm package/Cloudflare Pages project: `cop-takeover`) is a mobile-first civic tool for documenting police deployments, estimating what they cost the community, and translating that same amount into concrete alternatives (housing, meals, therapy, and more).
 
 ## Why this exists
 
@@ -88,7 +88,7 @@ Connect the repository to Cloudflare Pages via the dashboard:
 
 Alternatively, create the project from the CLI:
 ```bash
-wrangler pages project create cop-flagration
+wrangler pages project create cop-takeover
 ```
 
 ### 2. Confirm the D1 binding
