@@ -5,5 +5,4 @@ node_modules/
 /.cache/
 /.wrangler/
 /.dev.vars
-wrangler.local.toml
 /public/build/

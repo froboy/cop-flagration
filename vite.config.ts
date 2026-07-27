@@ -4,10 +4,5 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [
-    tailwindcss(),
-    remixCloudflareDevProxy({ configPath: "wrangler.local.toml" }),
-    remix(),
-    tsconfigPaths(),
-  ],
+  plugins: [tailwindcss(), remixCloudflareDevProxy(), remix(), tsconfigPaths()],
 });

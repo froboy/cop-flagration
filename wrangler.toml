@@ -1,3 +1,8 @@
 name = "cop-flagration"
 compatibility_date = "2024-01-01"
 pages_build_output_dir = "./build/client"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cop-flagration"
+database_id = "f39727c0-1392-430c-8699-df4cebd90d23"
