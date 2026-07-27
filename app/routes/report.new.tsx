@@ -290,10 +290,12 @@ export default function NewReportPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="text-3xl font-black">Document a cop-flagration</h1>
-      <p className="mt-2 text-sm text-zinc-700">Document who showed up, for how long, and what it likely cost.</p>
+      <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300">Document who showed up, for how long, and what it likely cost.</p>
 
       {actionData?.error ? (
-        <p className="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700">{actionData.error}</p>
+        <p className="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/60 dark:text-red-200">
+          {actionData.error}
+        </p>
       ) : null}
 
       <Form method="post" className="mt-6 space-y-5">
@@ -320,7 +322,7 @@ export default function NewReportPage() {
               name="reportDate"
               value={reportDate}
               onChange={(event) => setReportDate(event.target.value)}
-              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
               required
             />
           </label>
@@ -331,7 +333,7 @@ export default function NewReportPage() {
               name="locationDescription"
               value={locationDescription}
               onChange={(event) => setLocationDescription(event.target.value)}
-              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
               placeholder="Intersection, address, neighborhood"
               required
             />
@@ -346,7 +348,7 @@ export default function NewReportPage() {
               name="startTime"
               value={startTime}
               onChange={(event) => setStartTime(event.target.value)}
-              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
               required
             />
           </label>
@@ -357,13 +359,13 @@ export default function NewReportPage() {
               name="endTime"
               value={endTime}
               onChange={(event) => setEndTime(event.target.value)}
-              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
               required
             />
           </label>
         </div>
 
-        <p className="text-sm font-medium text-zinc-700">Duration: {formatDuration(durationMinutes)}</p>
+        <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Duration: {formatDuration(durationMinutes)}</p>
 
         <div className="space-y-3">
           <UnitCounter name="officerCount" label="Officers" icon="👮" value={officerCount} onChange={setOfficerCount} />
@@ -409,21 +411,21 @@ export default function NewReportPage() {
           }}
         />
 
-        <section className="rounded-xl border border-zinc-300 bg-white p-4">
+        <section className="rounded-xl border border-zinc-300 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-sm font-bold">Optional map pin</h2>
             <button
               type="button"
               onClick={() => setShowMap((value) => !value)}
-              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
             >
               {showMap ? "Hide map" : "Show map"}
             </button>
           </div>
           {showMap ? (
             <>
-              <div ref={mapRef} className="mt-3 h-64 rounded-lg border border-zinc-300" />
-              <p className="mt-2 text-xs text-zinc-600">Tap/click map to set coordinates.</p>
+              <div ref={mapRef} className="mt-3 h-64 rounded-lg border border-zinc-300 dark:border-zinc-700" />
+              <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">Tap/click map to set coordinates.</p>
             </>
           ) : null}
           {mapError ? <p className="mt-2 text-xs text-red-700">{mapError}</p> : null}
@@ -436,7 +438,7 @@ export default function NewReportPage() {
                 name="latitude"
                 value={latitude}
                 onChange={(event) => setLatitude(event.target.value)}
-                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2"
+                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
                 placeholder="30.2672"
               />
             </label>
@@ -447,7 +449,7 @@ export default function NewReportPage() {
                 name="longitude"
                 value={longitude}
                 onChange={(event) => setLongitude(event.target.value)}
-                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2"
+                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
                 placeholder="-97.7431"
               />
             </label>
@@ -461,14 +463,14 @@ export default function NewReportPage() {
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
             rows={4}
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2"
+            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
           />
         </label>
 
         <button
           type="submit"
           disabled={navigation.state === "submitting"}
-          className="w-full rounded-xl bg-zinc-900 px-5 py-3 text-base font-black text-white"
+          className="w-full rounded-xl bg-zinc-900 px-5 py-3 text-base font-black text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
           {navigation.state === "submitting" ? "Saving..." : "Save report and get share link"}
         </button>

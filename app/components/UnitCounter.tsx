@@ -11,7 +11,7 @@ export function UnitCounter({ name, label, icon, value, onChange }: UnitCounterP
   const increment = () => onChange(value + 1);
 
   return (
-    <div className="rounded-xl border border-zinc-300 bg-white p-3">
+    <div className="rounded-xl border border-zinc-300 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
       <div className="flex items-center justify-between gap-3">
         <p className="font-semibold">
           {icon} {label}
@@ -20,7 +20,7 @@ export function UnitCounter({ name, label, icon, value, onChange }: UnitCounterP
           <button
             type="button"
             onClick={decrement}
-            className="h-9 w-9 rounded-lg border border-zinc-300 text-xl font-bold"
+            className="h-9 w-9 rounded-lg border border-zinc-300 text-xl font-bold transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
             aria-label={`Decrease ${label}`}
           >
             −
@@ -29,7 +29,7 @@ export function UnitCounter({ name, label, icon, value, onChange }: UnitCounterP
           <button
             type="button"
             onClick={increment}
-            className="h-9 w-9 rounded-lg border border-zinc-300 text-xl font-bold"
+            className="h-9 w-9 rounded-lg border border-zinc-300 text-xl font-bold transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
             aria-label={`Increase ${label}`}
           >
             +
